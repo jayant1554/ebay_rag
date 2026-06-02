@@ -1,10 +1,8 @@
-"""
-app.py  –  eBay User Agreement RAG Chatbot
-Streamlit interface with real-time streaming, model switcher (DeepSeek / Ollama),
-source chunk display, and sidebar stats.
-"""
-
 import os
+import warnings
+warnings.filterwarnings("ignore")
+os.environ["TRANSFORMERS_VERBOSITY"] = "error"
+
 import streamlit as st
 from dotenv import load_dotenv
 from src.pipeline import rag_stream, get_stats
@@ -40,14 +38,24 @@ st.markdown("""
         background: #1e3a5f; color: #4f8ef7; border: 1px solid #4f8ef7;
     }
     .chunk-count { color: #a78bfa; font-weight: 600; }
+    div[data-testid="stButton"] > button {
+        background: #1e2130 !important;
+        border: 1px solid #2a2d3e !important;
+        color: #a0a8c0 !important;
+        border-radius: 8px !important;
+        font-size: 0.82rem !important;
+        width: 100%;
+    }
+    div[data-testid="stButton"] > button:hover {
+        border-color: #4f8ef7 !important;
+        color: #4f8ef7 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("## ⚙️ Configuration")
 
-    # Model switcher
     provider = st.radio(
         "🤖 Select Model Provider",
         options=["DeepSeek API", "Ollama (Local)"],
@@ -63,12 +71,12 @@ with st.sidebar:
             placeholder="sk-...",
         )
         ollama_model_name = ""
-        model_display = "deepseek-chat"
+        model_display = "deepseek-v4-flash"
     else:
         deepseek_key = ""
         ollama_model_name = st.selectbox(
             "Ollama Model",
-            ["mistral", "llama3", "phi3", "gemma2"],
+            ["mistral", "llama3",  "qwen2.5:7b "],
             index=0,
         )
         model_display = f"ollama/{ollama_model_name}"
@@ -93,45 +101,72 @@ with st.sidebar:
     st.divider()
     if st.button("🗑️ Clear Chat", use_container_width=True):
         st.session_state.messages = []
+        st.session_state.pop("pending_prompt", None)
         st.rerun()
 
     show_sources = st.toggle("Show source chunks", value=True)
 
-# ── Main UI ───────────────────────────────────────────────────────────────────
+    st.divider()
+    st.markdown("""
+    <div style="font-size:0.72em; color:#5a6080; text-align:center;">
+        Built with FAISS · Streamlit<br>
+        Document: eBay User Agreement
+    </div>
+    """, unsafe_allow_html=True)
+
 st.markdown('<div class="main-title">🛒 eBay User Agreement Chatbot</div>', unsafe_allow_html=True)
 st.markdown('<div class="subtitle">Ask anything about eBay\'s policies, fees, disputes, and more.</div>', unsafe_allow_html=True)
 
-# Init chat history
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Display chat history
+if not st.session_state.messages:
+    st.markdown("#### 💡 Try asking:")
+    suggestions = [
+        "What is the eBay Money Back Guarantee?",
+        "How are disputes resolved on eBay?",
+        "What fees do sellers pay on eBay?",
+        "Can I opt out of the arbitration agreement?",
+        "What happens if I sell prohibited items?",
+        "How does international shipping work?",
+    ]
+    cols = st.columns(2)
+    for i, suggestion in enumerate(suggestions):
+        with cols[i % 2]:
+            if st.button(suggestion, key=f"sug_{i}", use_container_width=True):
+                st.session_state["pending_prompt"] = suggestion
+                st.rerun()
+    st.divider()
+
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
-        if msg["role"] == "assistant" and show_sources and msg.get("sources"):
+        REFUSAL_PHRASE = "I couldn't find specific information"
+        if msg["role"] == "assistant" and show_sources and msg.get("sources") and REFUSAL_PHRASE not in msg["content"]:
             with st.expander("📄 Source Chunks Used"):
-                for i, src in enumerate(msg["sources"]):
+                for src in msg["sources"]:
                     st.markdown(
                         f'<div class="source-box"><b>Chunk #{src["id"]} '
                         f'(score: {src["score"]:.3f})</b><br>{src["text"]}</div>',
                         unsafe_allow_html=True,
                     )
 
-# Chat input
-if prompt := st.chat_input("Ask about eBay policies, fees, disputes, returns..."):
 
-    # Validate config
+prompt = st.session_state.pop("pending_prompt", None) or st.chat_input(
+    "Ask about eBay policies, fees, disputes, returns..."
+)
+
+if prompt:
     if provider == "DeepSeek API" and not deepseek_key:
         st.error("Please enter your DeepSeek API key in the sidebar.")
         st.stop()
 
-    # Add user message
+
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Stream assistant response
     with st.chat_message("assistant"):
         response_placeholder = st.empty()
         full_response = ""
@@ -156,9 +191,10 @@ if prompt := st.chat_input("Ask about eBay policies, fees, disputes, returns..."
             response_placeholder.markdown(full_response)
 
             # Show sources
-            if show_sources and sources:
+            REFUSAL_PHRASE = "I couldn't find specific information"
+            if show_sources and sources and REFUSAL_PHRASE not in full_response:
                 with st.expander("📄 Source Chunks Used"):
-                    for i, src in enumerate(sources):
+                    for src in sources:
                         st.markdown(
                             f'<div class="source-box"><b>Chunk #{src["id"]} '
                             f'(score: {src["score"]:.3f})</b><br>{src["text"]}</div>',
@@ -168,10 +204,9 @@ if prompt := st.chat_input("Ask about eBay policies, fees, disputes, returns..."
         except Exception as e:
             full_response = f"⚠️ Error: {str(e)}"
             response_placeholder.markdown(full_response)
-
-    # Save to history
     st.session_state.messages.append({
         "role": "assistant",
         "content": full_response,
         "sources": sources,
     })
+    st.rerun()

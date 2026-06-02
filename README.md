@@ -100,7 +100,7 @@ streamlit run app.py
 
 | Provider | Model | Notes |
 |---|---|---|
-| **DeepSeek API** | `deepseek-chat` (V3) | Fast, accurate, free tier available |
+| **DeepSeek API** | `deepseek-v4-flash` (V3) | Fast, accurate, free tier available |
 | **Ollama (Local)** | `mistral`, `llama3`, `phi3`, `gemma2` | Fully offline, no API key needed |
 
 ### Vector Database: FAISS (`IndexFlatIP`)
