@@ -42,36 +42,66 @@ User Query
 | Generator | `src/generator.py` | LLM streaming (DeepSeek / Ollama) |
 | Pipeline | `src/pipeline.py` | Combines retriever + generator |
 | UI | `app.py` | Streamlit chatbot interface |
-
----
-
 ## ⚙️ Setup & Installation
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/ebay-rag-chatbot.git
-cd ebay-rag-chatbot
+git clone https://github.com/jayant1554/ebay_rag.git
+cd ebay_rag
 ```
 
-### 2. Install dependencies
+### 2. Create a Python virtual environment
+```bash
+# Windows (CMD)
+python -m venv venv
+venv\Scripts\activate
+
+# Windows (PowerShell)
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+
+# macOS/Linux
+python -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Set up environment variables
+### 4. Set up environment variables
+
+Create a `.env` file manually in the root of the project:
+
 ```bash
-cp .env.example .env
-# Edit .env and add your DeepSeek API key
+# Windows (CMD)
+echo DEEPSEEK_API_KEY=your_deepseek_api_key_here > .env
+
+# Windows (PowerShell)
+New-Item .env -ItemType File
+Add-Content .env "DEEPSEEK_API_KEY=your_deepseek_api_key_here"
+
+# macOS/Linux
+echo "DEEPSEEK_API_KEY=your_deepseek_api_key_here" > .env
 ```
 
-### 4. Add the document
-Place `AI_Training_Document.pdf` (eBay User Agreement) inside the `/data` folder:
+Or create it manually — make a new file named `.env` in the root folder and add:
+```
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
+```
+
+> 💡 The `.env` file is in `.gitignore` and will never be pushed to GitHub.  
+> 💡 If using Ollama only, you can skip this step entirely.
+
+### 5. Add the document
+Place `AI_Training_Document.pdf` inside the `/data` folder:
 ```
 data/
 └── AI_Training_Document.pdf
 ```
 
-### 5. Run preprocessing (builds FAISS index)
+### 6. Run preprocessing (builds FAISS index)
 ```bash
 python preprocess.py
 ```
@@ -82,11 +112,11 @@ This will:
 - Save FAISS index to `/vectordb/index.faiss`
 - Save chunks to `/chunks/chunks.json`
 
-### 6. Launch the chatbot
+### 7. Launch the chatbot
 ```bash
 streamlit run app.py
 ```
-
+Open your browser at: **http://localhost:8501**
 ---
 
 ## 🤖 Model & Embedding Choices
@@ -100,8 +130,8 @@ streamlit run app.py
 
 | Provider | Model | Notes |
 |---|---|---|
-| **DeepSeek API** | `deepseek-v4-flash` (V3) | Fast, accurate, free tier available |
-| **Ollama (Local)** | `mistral`, `llama3`, `phi3`, `gemma2` | Fully offline, no API key needed |
+| **DeepSeek API** | `deepseek-v4-flash` (V4) | Fast, accurate, paid |
+| **Ollama (Local)** | `mistral`, `llama3`,`qwen2.5:7b` | Fully offline, no API key needed |
 
 ### Vector Database: FAISS (`IndexFlatIP`)
 - Inner product index (cosine similarity on normalized vectors)
@@ -139,14 +169,14 @@ streamlit run app.py
 - **Chunking gaps:** Very long legal clauses (e.g., arbitration section) may be split mid-sentence. Overlap of 30 words mitigates this.
 - **Numerical data:** Exact fee percentages, dates, and dollar amounts may not always be in retrieved chunks since they appear in tables/external links.
 - **Ollama latency:** Local models on CPU can be slow (5–15s first token). DeepSeek API is significantly faster.
-- **Multi-turn context:** Each query is independent; the chatbot does not maintain conversational memory across turns (by design, to stay grounded).
+- **Multi-turn context:** Each query is independent, the chatbot does not maintain conversational memory across turns (by design, to stay grounded).
 
 ---
 
 ## 📁 Folder Structure
 
 ```
-ebay-rag-chatbot/
+ebay_rag/
 ├── data/                    # Source document
 │   └── AI_Training_Document.pdf
 ├── chunks/                  # Processed text segments
@@ -163,7 +193,6 @@ ebay-rag-chatbot/
 ├── app.py                   # Streamlit chatbot
 ├── preprocess.py            # Run once to build index
 ├── requirements.txt
-├── .env.example
 └── README.md
 ```
 
