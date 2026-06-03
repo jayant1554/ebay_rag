@@ -2,16 +2,15 @@
 
 An AI-powered chatbot that answers questions about the **eBay User Agreement** using a full **Retrieval-Augmented Generation (RAG)** pipeline with real-time streaming responses.
 
-> Built as part of the **Amlgo Labs Junior AI Engineer Assignment**  
+> Built it for  **Amlgo Labs Junior AI Engineer Assignment**  
 > **Author:** Jayant Bisht | **Stack:** FAISS · Sentence Transformers · DeepSeek API · Ollama · Streamlit
 
 ---
 
 ## 🎥 Demo
 
-> 📹 **Live App:** [https://ebayua.streamlit.app](https://ebayua.streamlit.app)  
-> _[Insert GIF or video link here after recording]_
-
+> 📹 **Live App:** [https://ebayua.streamlit.app](https://ebayua.streamlit.app)  `Deepseek api required`
+> [🎬 Watch Demo Video](https://drive.google.com/file/d/1j3fboKDFxkMseuinQjxQGsLHsKbWp0JG/view?usp=sharing)
 ---
 
 ## 🏗️ Project Architecture & Flow
