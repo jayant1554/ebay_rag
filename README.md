@@ -10,7 +10,7 @@ An AI-powered chatbot that answers questions about the **eBay User Agreement** u
 ## 🎥 Demo
 
 > 📹 **Live App:** [https://ebayua.streamlit.app](https://ebayua.streamlit.app)  `Deepseek api required`
-> [🎬 Watch Demo Video](https://drive.google.com/file/d/1j3fboKDFxkMseuinQjxQGsLHsKbWp0JG/view?usp=sharing)
+> [🎬 Watch Demo Video](https://drive.google.com/file/d/1g2mMqKpjT8qjr9m_6VkQaMibRJfRuYN8/view?usp=drive_link)
 ---
 
 ## 🏗️ Project Architecture & Flow
