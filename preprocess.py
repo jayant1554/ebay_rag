@@ -12,8 +12,8 @@ DATA_PATH     = Path("data") / "AI Training Document.pdf"
 CHUNKS_DIR    = "chunks"
 VECTORDB_DIR  = "vectordb"
 EMBED_MODEL   = "all-MiniLM-L6-v2"
-CHUNK_SIZE    = 200   # target words per chunk
-CHUNK_OVERLAP = 30    # overlap in words
+CHUNK_SIZE    = 200   
+CHUNK_OVERLAP = 30  
 
 
 def extract_text_from_pdf(path: Path) -> str:

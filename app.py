@@ -76,7 +76,7 @@ with st.sidebar:
         deepseek_key = ""
         ollama_model_name = st.selectbox(
             "Ollama Model",
-            ["mistral", "llama3",  "qwen2.5:7b "],
+            ["mistral", "llama3",  "qwen2.5:7b"],
             index=0,
         )
         model_display = f"ollama/{ollama_model_name}"
@@ -183,14 +183,11 @@ if prompt:
             )
             sources = chunks
 
-            # Stream tokens
             for token in token_gen:
                 full_response += token
                 response_placeholder.markdown(full_response + "▌")
 
             response_placeholder.markdown(full_response)
-
-            # Show sources
             REFUSAL_PHRASE = "I couldn't find specific information"
             if show_sources and sources and REFUSAL_PHRASE not in full_response:
                 with st.expander("📄 Source Chunks Used"):

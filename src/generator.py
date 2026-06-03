@@ -102,7 +102,7 @@ def stream_deepseek(
                 delta = chunk.choices[0].delta.content
                 if delta:
                     yield delta
-            return  # success
+            return 
 
         except AuthenticationError as e:
             raise ValueError("Invalid DeepSeek API key") from e
