@@ -95,7 +95,7 @@ def stream_deepseek(
                 model=model,
                 messages=messages,
                 stream=True,
-                temperature=0.1,
+                temperature=0.2,
                 max_tokens=1024,
             )
             for chunk in response:
