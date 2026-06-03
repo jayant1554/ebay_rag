@@ -47,7 +47,6 @@ def retrieve(query: str, top_k: int = 5, score_threshold: float = 0.0) -> list[C
         if idx == -1:
             continue
         if dist < score_threshold:
-            logger.debug("Skipping chunk %d with score %.4f (below threshold)", idx, dist)
             continue
         results.append(Chunk(
             text=_chunks[idx]["text"],
